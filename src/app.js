@@ -5,6 +5,7 @@ const socketIO = require('socket.io')
 const Filter = require('bad-words')
 
 const { generateMessage, generateLocation } = require('./utils/messages')
+const { addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users');
 
 const app = express()
 const server = http.createServer(app)
@@ -23,33 +24,54 @@ io.on('connection', (socket) => {
     connectionCount++
     console.log(`Socket connection! Total connections: ${connectionCount}`)
 
-    socket.emit('message', generateMessage('Welcome!'))
+    // JOIN
+    socket.on('join', ({username, room}, callback) => {
+        const { error, user } = addUser({id: socket.id, username, room})
 
-    socket.broadcast.emit('message', generateMessage('A new user has joined'))
+        if (error) {
+            return callback(error)
+        }
+
+        socket.join(user.room)
+
+        socket.emit('message', generateMessage('-room-', 'Welcome!'))
+        socket.to(user.room).broadcast.emit('message', generateMessage('-room-', `${user.username} has joined`))
+        callback()
+    })
 
     socket.on('message', (message, callback) => {
+        const user = getUser(socket.id)
         const filter = new Filter()
 
         if (filter.isProfane(message)) {
             return callback('Profanity is not allowed')
         }
-        io.emit('message', generateMessage(message))
+        if (user) {
+            io.to(user.room).emit('message', generateMessage(user.username, message))
+        }
         callback()
     })
 
     socket.on('sendLocation', (coords, callback) => {
+        const user = getUser(socket.id)
         if (!coords) {
             return callback('Location sharing not enabled')
         }
         const {latitude, longitude} = coords
-        socket.broadcast.emit('locationMessage', generateLocation(`https://google.com/maps?q=${latitude},${longitude}`))
+        if (user) {
+            socket.broadcast.to(user.room).emit('locationMessage', generateLocation(user.username, `https://google.com/maps?q=${latitude},${longitude}`))
+        }
         callback()
     })
 
     socket.on('disconnect', () => {
         connectionCount--
         console.log(`Socket disconnected! Total connections: ${connectionCount}`)
-        io.emit('message', generateMessage('A user has left'))
+        const user = removeUser(socket.id)
+
+        if (user) {
+            io.to(user.room).emit('message', generateMessage('-room-', `${user.username} has left`))
+        }
     })
 })
 

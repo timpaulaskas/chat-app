@@ -9,20 +9,24 @@ const messages = document.querySelector('#messages')
 const messageTemplate = document.querySelector('#message-template').innerHTML
 const urlTemplate = document.querySelector('#url-template').innerHTML
 
+const timeFormat = (time) => {
+    return moment(time).format('h:mm:ss a')
+}
+
 socket.on('message', (message) => {
     const html = Mustache.render(messageTemplate, {
-        time: moment(message.createdAt).format('h:mm:ss a'),
+        time: timeFormat(message.createdAt),
         message: message.text
     })
-    messages.insertAdjacentHTML('afterbegin', html)
+    messages.insertAdjacentHTML('beforeend', html)
 })
 
-socket.on('locationMessage', (url) => {
+socket.on('locationMessage', (message) => {
     const html = Mustache.render(urlTemplate, {
-        time: moment(url.createdAt).format('h:mm:ss a'),
-        url: url.txt
+        time: timeFormat(message.createdAt),
+        url: message.url
     })
-    messages.insertAdjacentHTML('afterbegin', html)
+    messages.insertAdjacentHTML('beforeend', html)
 })
 
 messageForm.addEventListener('submit', (e) => {
@@ -60,10 +64,10 @@ sendLocationButton.addEventListener('click', () => {
                 return alert(error)
             }
             const html = Mustache.render(messageTemplate, {
-                time: moment(new Date().getTime()).format('h:mm:ss a'),
+                time: timeFormat(new Date().getTime()),
                 message: 'Location shared'
             })
-            messages.insertAdjacentHTML('afterbegin', html)
+            messages.insertAdjacentHTML('beforeend', html)
         })
     })
 })

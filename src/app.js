@@ -4,7 +4,7 @@ const express = require('express')
 const socketIO = require('socket.io')
 const Filter = require('bad-words')
 
-const { generateMessage, generateURL } = require('./utils/messages')
+const { generateMessage, generateLocation } = require('./utils/messages')
 
 const app = express()
 const server = http.createServer(app)
@@ -18,8 +18,10 @@ app.use(express.json())
 
 app.use(express.static(publicDirectoryPath))
 
+let connectionCount = 0
 io.on('connection', (socket) => {
-    console.log('New web socket connection!')
+    connectionCount++
+    console.log(`Socket connection! Total connections: ${connectionCount}`)
 
     socket.emit('message', generateMessage('Welcome!'))
 
@@ -40,11 +42,13 @@ io.on('connection', (socket) => {
             return callback('Location sharing not enabled')
         }
         const {latitude, longitude} = coords
-        socket.broadcast.emit('locationMessage', generateURL(`https://google.com/maps?q=${latitude},${longitude}`))
+        socket.broadcast.emit('locationMessage', generateLocation(`https://google.com/maps?q=${latitude},${longitude}`))
         callback()
     })
 
     socket.on('disconnect', () => {
+        connectionCount--
+        console.log(`Socket disconnected! Total connections: ${connectionCount}`)
         io.emit('message', generateMessage('A user has left'))
     })
 })

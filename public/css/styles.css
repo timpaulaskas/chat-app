@@ -1,9 +1,39 @@
 body {
     color: #333333;
     font-family: arial;
+    margin:0;
+    padding:0;
     display: flex;
     flex-direction: column;
-    min-height: 100vh
+    min-height: 100vh;
+}
+
+header {
+    position: absolute;
+    top: 0;
+    height: 2.5rem;
+    background: #2e91fc;
+    color: #fff;
+    padding-top: 1.25rem;
+    padding-left: 1.25rem;
+    position: fixed;
+    width: 100%
+}
+
+header a {
+    color: #eeeeee;
+    margin-right: 16px;
+    text-decoration: none;
+}
+
+.content {
+  height: 100%;
+  position: relative;
+  top: 2.5rem;
+  padding-top: 4.5rem;
+  padding-left: 1rem;
+  box-sizing: border-box;
+  flex-grow: 1;
 }
 
 .timestamp {
@@ -17,7 +47,7 @@ body {
   flex-grow: 1;
 }
 
-input {
+#message {
     border: 1px solid #cccccc;
     padding: 8px;
     font-size: 1.5rem;

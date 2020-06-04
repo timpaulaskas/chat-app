@@ -10,8 +10,9 @@
     <body>
         <header>Chat App</header>
         <div class="content">
-            <form id="message-form">
-                <input type="text" id="message" placeholder="Message"/>
+            <form id="message-form" autocomplete="off">
+                <input autocomplete="false" name="hidden" type="text" style="display:none;">
+                <input type="text" id="message" placeholder="Message" autocomplete="false" />
                 <button id="sendMessage">Send</button>
             </form>
             <button id="send-location">Share location</button>

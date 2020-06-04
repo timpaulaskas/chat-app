@@ -11,16 +11,16 @@ const urlTemplate = document.querySelector('#url-template').innerHTML
 
 socket.on('message', (message) => {
     const html = Mustache.render(messageTemplate, {
-        time: new Date().toLocaleString(),
-        message
+        time: moment(message.createdAt).format('h:mm:ss a'),
+        message: message.text
     })
     messages.insertAdjacentHTML('afterbegin', html)
 })
 
 socket.on('locationMessage', (url) => {
     const html = Mustache.render(urlTemplate, {
-        time: new Date().toLocaleString(),
-        url
+        time: moment(url.createdAt).format('h:mm:ss a'),
+        url: url.txt
     })
     messages.insertAdjacentHTML('afterbegin', html)
 })
@@ -59,7 +59,11 @@ sendLocationButton.addEventListener('click', () => {
             if (error) {
                 return alert(error)
             }
-            console.log('Location shared')
+            const html = Mustache.render(messageTemplate, {
+                time: moment(new Date().getTime()).format('h:mm:ss a'),
+                message: 'Location shared'
+            })
+            messages.insertAdjacentHTML('afterbegin', html)
         })
     })
 })

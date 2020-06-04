@@ -25,6 +25,14 @@ io.on('connection', (socket) => {
         io.emit('message', message)
     })
 
+    socket.on('sendLocation', (coords) => {
+        if (!coords) {
+            return console.log('Location sharing not enabled')
+        }
+        const {latitude, longitude} = coords
+        socket.broadcast.emit('message', `<a href="https://google.com/maps?q=${latitude},${longitude}">Shared Location</a>`)
+    })
+
     socket.on('disconnect', () => {
         io.emit('message', 'A user has left')
     })

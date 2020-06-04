@@ -48,27 +48,32 @@ header a {
 }
 
 #message {
-    border: 1px solid #cccccc;
-    padding: 8px;
-    font-size: 1.5rem;
-    width: 30rem;
+  border: 1px solid #cccccc;
+  padding: 8px;
+  font-size: 1.5rem;
+  width: 30rem;
 }
 
 button {
-    cursor: pointer;
-    border: 1px solid #888888;
-    background: #888888;
-    color: white;
-    padding: 8px;
-    font-size: 1.5rem;
+  cursor: pointer;
+  border: 1px solid #888888;
+  background: #888888;
+  color: white;
+  padding: 8px;
+  font-size: 1.5rem;
 }
 
 .chat {
   height: 100%;
   position: relative;
   top: 2.5rem;
-  padding-top: 2.5rem;
   padding-left: 1rem;
   box-sizing: border-box;
   flex-grow: 1;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  border: 1px solid #000000;
+  background: #000000;
 }

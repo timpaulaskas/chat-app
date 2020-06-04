@@ -7,11 +7,20 @@ const sendLocationButton = document.querySelector('#send-location')
 const messages = document.querySelector('#messages')
 
 const messageTemplate = document.querySelector('#message-template').innerHTML
+const urlTemplate = document.querySelector('#url-template').innerHTML
 
 socket.on('message', (message) => {
     const html = Mustache.render(messageTemplate, {
         time: new Date().toLocaleString(),
         message
+    })
+    messages.insertAdjacentHTML('afterbegin', html)
+})
+
+socket.on('locationMessage', (url) => {
+    const html = Mustache.render(urlTemplate, {
+        time: new Date().toLocaleString(),
+        url
     })
     messages.insertAdjacentHTML('afterbegin', html)
 })

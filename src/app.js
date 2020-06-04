@@ -38,7 +38,7 @@ io.on('connection', (socket) => {
             return callback('Location sharing not enabled')
         }
         const {latitude, longitude} = coords
-        socket.broadcast.emit('message', `<a href="https://google.com/maps?q=${latitude},${longitude}">Shared Location</a>`)
+        socket.broadcast.emit('locationMessage', `https://google.com/maps?q=${latitude},${longitude}`)
         callback()
     })
 

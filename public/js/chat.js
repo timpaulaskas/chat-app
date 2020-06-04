@@ -12,23 +12,29 @@ socket.on('message', (message) => {
 messageForm.addEventListener('submit', (e) => {
     e.preventDefault()
     const message = chatMessage.value
-    chatMessage.value = ''
-    socket.emit('message', message)
+    socket.emit('message', message, (error) => {
+        if (error) {
+            return alert(error)
+        }
+        console.log('Message delivered')
+        chatMessage.value = ''
+    })
 })
 
 sendLocation.addEventListener('click', () => {
-    if (sendLocation.checked) {
-        if (!navigator.geolocation) {
-            return alert('Geolocation is not supported by your browser')
-        }
-
-        navigator.geolocation.getCurrentPosition((position) => {
-            socket.emit('sendLocation', {
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude
-            })
-        })
-    } else {
-        socket.emit('sendLocation')
+    if (!navigator.geolocation) {
+        return alert('Geolocation is not supported by your browser')
     }
+
+    navigator.geolocation.getCurrentPosition((position) => {
+        socket.emit('sendLocation', {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+        }, (error) => {
+            if (error) {
+                return alert(error)
+            }
+            console.log('Location shared')
+        })
+    })
 })

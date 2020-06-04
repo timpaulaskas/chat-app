@@ -2,6 +2,7 @@ const path = require('path')
 const http = require('http')
 const express = require('express')
 const socketIO = require('socket.io')
+const Filter = require('bad-words')
 
 const app = express()
 const server = http.createServer(app)
@@ -21,16 +22,24 @@ io.on('connection', (socket) => {
     socket.emit('message', 'Welcome!')
 
     socket.broadcast.emit('message', 'A new user has joined')
-    socket.on('message', (message) => {
+
+    socket.on('message', (message, callback) => {
+        const filter = new Filter()
+
+        if (filter.isProfane(message)) {
+            return callback('Profanity is not allowed')
+        }
         io.emit('message', message)
+        callback()
     })
 
-    socket.on('sendLocation', (coords) => {
+    socket.on('sendLocation', (coords, callback) => {
         if (!coords) {
-            return console.log('Location sharing not enabled')
+            return callback('Location sharing not enabled')
         }
         const {latitude, longitude} = coords
         socket.broadcast.emit('message', `<a href="https://google.com/maps?q=${latitude},${longitude}">Shared Location</a>`)
+        callback()
     })
 
     socket.on('disconnect', () => {

@@ -12,6 +12,28 @@ const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML
 
 const {username, room} = Qs.parse(location.search, { ignoreQueryPrefix: true })
 
+const autoScroll = () => {
+    // New message element
+    const $newMessage = messages.lastElementChild
+
+    // Height of the new message
+    const newMessageStyles = getComputedStyle($newMessage)
+    const newMessageMargin = parseInt(newMessageStyles.marginBottom)
+    const newMessageHeight = $newMessage.offsetHeight + newMessageMargin
+
+    // Visible height
+    const visibleHeight = messages.offsetHeight
+
+    //Height of messages container
+    const containerHeight = messages.scrollHeight
+
+    // How far scrolled
+    const scrollOffset = messages.scrollTop + visibleHeight
+
+    if (containerHeight - newMessageHeight <= scrollOffset) {
+        messages.scrollTop = messages.scrollHeight
+    }
+}
 const timeFormat = (time) => {
     return moment(time).format('h:mm:ss a')
 }
@@ -23,16 +45,35 @@ socket.on('message', (message) => {
         message: message.text
     })
     messages.insertAdjacentHTML('beforeend', html)
+    autoScroll()
 })
 
 socket.on('locationMessage', (message) => {
-    console.log(message)
     const html = Mustache.render(urlTemplate, {
         username: message.username,
         time: timeFormat(message.createdAt),
         url: message.url
     })
     messages.insertAdjacentHTML('beforeend', html)
+    autoScroll()
+})
+
+socket.on('roomData', ({ room, users }) => {
+    const html = Mustache.render(sidebarTemplate, {
+        room,
+        users
+    })
+    document.querySelector('#sidebar').innerHTML = html
+})
+
+socket.emit('join', {
+    username,
+    room
+}, (error) => {
+    if (error) {
+        alert(error)
+        location.href = '/'
+    }
 })
 
 messageForm.addEventListener('submit', (e) => {
@@ -46,7 +87,6 @@ messageForm.addEventListener('submit', (e) => {
             if (error) {
                 return alert(error)
             }
-            console.log('Message delivered')
             chatMessage.value = ''
             chatMessage.focus()
         })
@@ -77,22 +117,4 @@ sendLocationButton.addEventListener('click', () => {
             messages.insertAdjacentHTML('beforeend', html)
         })
     })
-})
-
-socket.emit('join', {
-    username,
-    room
-}, (error) => {
-    if (error) {
-        alert(error)
-        location.href = '/'
-    }
-})
-
-socket.on('roomData', ({room, users}) => {
-    const html = Mustache.render(sidebarTemplate, {
-        room,
-        users
-    })
-    document.querySelector('#sidebar').innerHTML = html
 })
